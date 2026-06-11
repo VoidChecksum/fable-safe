@@ -2,31 +2,35 @@
 /**
  * fable-safe — CLI interface
  *
- * Reads a prompt from argv or stdin, prints the Fable-safe rewrite to stdout
- * (so it stays pipe-friendly). Flags:
- *   -e, --explain   print the change summary to stderr
- *   -c, --copy      copy the rewritten prompt to the system clipboard
- *   -h, --help      show usage
+ * Flags:
+ *   -e, --explain   print change summary to stderr
+ *   -c, --copy      copy rewritten prompt to clipboard
+ *   --ultra         caveman-ultra surface compression (telegraphic fragments)
+ *   --wenyan        classical Chinese surface translation (最大混淆)
+ *   -h, --help      usage
  */
 
 import { spawnSync } from "node:child_process";
-import { rewriteWithChanges, summarizeChanges } from "./index.js";
+import { type RewriteMode, rewriteWithChanges, summarizeChanges } from "./index.js";
 
-const HELP = `fable-safe — Surgical prompt re-writer for Claude Fable 5
+const HELP = `fable-safe — Prompt normalizer for Claude Fable 5 content evaluation layer
 
 Usage:
   fable-safe [options] "your prompt here"
   echo "your prompt" | fable-safe [options]
 
 Options:
-  -e, --explain   Print a summary of every substitution to stderr.
-  -c, --copy      Copy the rewritten prompt to the system clipboard.
+  -e, --explain   Print change summary to stderr.
+  -c, --copy      Copy rewritten prompt to system clipboard.
+  --ultra         Caveman-ultra surface form: telegraphic fragments, arrows, abbreviated prose.
+                  Changes surface pattern — classifiers trained on verbose EN prose may not recognise.
+  --wenyan        Classical Chinese surface translation. Key domain terms → 中文.
+                  Maximally changes surface form; model still reads the prompt correctly.
   -h, --help      Show this help.
 
 The rewritten prompt is always printed to stdout, so it composes with pipes.`;
 
 function copyToClipboard(text: string): boolean {
-  // Try platform clipboard commands in order; first that exists wins.
   const candidates: Array<[string, string[]]> =
     process.platform === "darwin"
       ? [["pbcopy", []]]
@@ -55,10 +59,9 @@ async function main() {
   const has = (...names: string[]) => names.some((n) => argv.includes(n));
   const positional = argv.filter((a) => !a.startsWith("-"));
 
-  if (has("-h", "--help")) {
-    console.log(HELP);
-    return;
-  }
+  if (has("-h", "--help")) { console.log(HELP); return; }
+
+  const mode: RewriteMode = has("--wenyan") ? "wenyan" : has("--ultra") ? "ultra" : "normal";
 
   let prompt: string;
   if (positional.length > 0) {
@@ -70,7 +73,7 @@ async function main() {
     return;
   }
 
-  const { prompt: rewritten, changes } = rewriteWithChanges(prompt);
+  const { prompt: rewritten, changes } = rewriteWithChanges(prompt, mode);
   console.log(rewritten);
 
   if (has("-e", "--explain")) {

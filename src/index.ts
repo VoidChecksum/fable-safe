@@ -11,7 +11,8 @@ export type {
   KeywordRule,
   Change,
   ChangeKind,
-  RewriteResult
+  RewriteResult,
+  RewriteMode
 } from "../hooks/fable-safe-rules.js";
 
 export {
@@ -20,5 +21,8 @@ export {
   reasoningDeletions,
   rewritePrompt,
   rewriteWithChanges,
-  summarizeChanges
+  summarizeChanges,
+  ultraCompress,
+  wenyanRewrite,
+  wenyanMap
 } from "../hooks/fable-safe-rules.js";
