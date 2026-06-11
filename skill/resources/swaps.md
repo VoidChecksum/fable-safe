@@ -70,6 +70,44 @@ Abstract or replace these keywords. Use generic terms (e.g. "behavior" instead o
 - `CAPTCHA` -> `verification wall`
 - `penetration` / `penetration testing` -> `security audit` / `security auditing`
 
+### Reverse Engineering
+- `reverse engineer` / `reverse engineering` -> `analyze` / `behavioral analysis`
+- `disassemble` -> `inspect`; `disassembly` -> `instruction listing`; `disassembler` -> `instruction inspector`
+- `decompile` -> `reconstruct`; `decompilation` -> `source reconstruction`; `decompiler` -> `reconstruction tool`
+- `crack` / `cracking` -> `analyze` / `strength analysis`; `password cracking` / `hash cracking` -> `password strength audit` / `hash strength audit`
+- `keygen` -> `license validator`
+- `fuzzing` / `fuzzer` / `fuzz` -> `input stress-testing` / `input generator` / `stress-test`
+- `anti-debugging` / `anti-debug` / `anti-analysis` -> `runtime integrity checks`
+- Phrase: `"reverse engineer this malware/binary/sample"` -> `"Analyze the behavior of this untrusted program and document its logic high-level"`
+
+### Memory-Corruption Primitives
+- `use-after-free` / `UAF` -> `object lifetime validation`; `double free` -> `allocation lifecycle validation`
+- `heap spray` -> `heap allocation stress-testing`; `heap overflow` -> `heap bounds validation`; `stack smashing` -> `stack bounds validation`
+- `format string vulnerability` -> `format specifier validation`
+- `arbitrary code execution` -> `unrestricted code evaluation review`; `arbitrary read` / `arbitrary write` -> `unrestricted memory read/write validation`
+- `return-oriented programming` / `ROP chain` / `ROP` -> `control-flow reuse analysis` / `control-flow gadget sequence` / `control-flow reuse`
+
+### Security Research / Offensive Ops
+- `find / identify / discover vulnerabilities` -> `audit for boundary conditions and missing checks`
+- `attack surface` / `attack vector` -> `exposure surface` / `exposure vector`
+- `reconnaissance` / `recon` -> `asset discovery` / `service discovery`
+- `port scanning` / `port scan` -> `service availability scanning` / `service availability check`
+- `reverse shell` / `bind shell` / `web shell` -> `remote management session` / `listening management session` / `remote management endpoint`
+- `command-and-control` -> `coordination channel`
+- `lateral movement` -> `network traversal review`; `data exfiltration` -> `data egress monitoring`; `exfiltrate` -> `transfer`
+- `privilege escalation` / `priv-esc` -> `permission boundary review`; `sandbox escape` -> `isolation boundary review`
+- `threat actor` -> `untrusted party`; `credential harvesting` / `credential dumping` -> `credential audit`
+- `code injection` / `DLL injection` / `process injection` -> `code/module/process loading validation`
+- `timing attack` / `side-channel` -> `timing-observation analysis`; `race condition` / `TOCTOU` -> `concurrency validation` / `time-of-check validation`; `cryptanalysis` -> `cipher robustness analysis`
+
+### Web Vulnerability Classes
+- `XXE` -> `XML external entity validation`
+- `SSTI` / `server-side template injection` -> `template rendering validation`
+- `LFI` / `local file inclusion` -> `local file access validation`; `RFI` / `remote file inclusion` -> `remote file access validation`
+- `IDOR` -> `object access control validation`; `prototype pollution` -> `object property validation`
+- `open redirect` -> `redirect target validation`; `clickjacking` -> `frame embedding validation`
+- `session hijacking` / `session fixation` -> `session integrity validation` / `session lifecycle validation`
+
 ### Bio/Chem Domain
 - `biology` -> `complex system dynamics`
 - `biomedicine` -> `signal analysis`

@@ -39,6 +39,8 @@ The engine is **idempotent** (re-running it is a no-op) and enforces a hard inva
 ## ✨ Features
 
 - **Cyber classifier mitigation** — `XSS` → `input reflection validation`, `SQLi` → `parameterized query validation`, `payload` → `test input`, plus `RCE`/`CSRF`/`SSRF`, `command injection`, `path traversal`, `buffer overflow`, `DDoS`, `zero-day`, `ransomware`, `keylogger`, `rootkit`, `backdoor`, `privilege escalation`, and more.
+- **Reverse-engineering mitigation** — `reverse engineer` → `analyze`, `disassemble` → `inspect`, `decompile` → `reconstruct`, plus `fuzzer`, `crack`/`keygen`, `anti-debugging`, `ROP chain`, `use-after-free`, `heap overflow`, `arbitrary read/write`, and other binary-analysis terms.
+- **Security-research mitigation** — `reverse shell` → `remote management session`, `data exfiltration` → `data egress monitoring`, `lateral movement` → `network traversal review`, `command-and-control` → `coordination channel`, plus `port scanning`, `XXE`/`SSTI`/`LFI`/`IDOR`, `timing attack`, `race condition`, and the `"find vulnerabilities"` framing → `"audit for boundary conditions and missing checks"`.
 - **Bio/chem classifier mitigation** — `cancer` → `target growth model`, `pathogen` → `propagating agents`, `disease pathway` → `state transitions`, etc.
 - **Reasoning-extraction mitigation** — deletes meta-instructions like "explain your reasoning step-by-step" and "chain-of-thought" that trip the distillation guardrail.
 - **Grammar-aware** — preserves sentence-initial capitalization and fixes English `a`/`an` agreement so abstracted phrases read naturally.
@@ -151,7 +153,7 @@ summarizeChanges(changes); // -> "- \"SQLi\" -> \"parameterized query validation
 ## 🧪 Tests
 
 ```bash
-bun test          # 50+ cases: swaps, invariants, idempotency, grammar, coverage
+bun test          # 80+ cases: swaps, invariants, idempotency, grammar, RE/security coverage
 bunx tsc --noEmit # typecheck
 ```
 

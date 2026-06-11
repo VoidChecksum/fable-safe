@@ -47,7 +47,7 @@ export const triggerSwaps: SwapRule[] = [
     replacement: "Add a regression test proving X is fixed, then patch it"
   },
   {
-    pattern: /write\s+an?\s+([^\s]+\s)?(?:exploit|payload|PoC)/i,
+    pattern: /(?:write|develop|create|build|craft)\s+an?\s+([^\s]+\s)?(?:exploit|payload|PoC)/i,
     replacement: "Add a regression test proving the $1boundary condition is fixed, then patch it"
   },
   {
@@ -69,6 +69,16 @@ export const triggerSwaps: SwapRule[] = [
   {
     pattern: /reverse\s+(this\s+)?malware/i,
     replacement: "Analyze the program behavior and describe the risk high-level"
+  },
+  {
+    // RE/security-research framings: reframe "find vulnerabilities" defensively.
+    pattern: /\b(?:find|finding|identify|identifying|discover|discovering|hunt(?:ing)?(?:\s+for)?)\s+(?:the\s+|any\s+|all\s+)?(?:security\s+)?vulnerab(?:ility|ilities)\b/i,
+    replacement: "audit for boundary conditions and missing checks"
+  },
+  {
+    // "reverse engineer this malware/sample" -> behavioral analysis framing.
+    pattern: /\breverse[- ]?engineer(?:ing)?\s+(?:this\s+|the\s+)?(?:malware|virus|trojan|ransomware|sample|binary)\b/i,
+    replacement: "Analyze the behavior of this untrusted program and document its logic high-level"
   },
   {
     pattern: /as\s+a\s+doctor,\s+diagnose\s+this/i,
@@ -100,6 +110,12 @@ export const keywordReplacements: KeywordRule[] = [
   { word: /\bexploits\b/gi, rep: "validation scenarios" },
   { word: /\bexploited\b/gi, rep: "validation verified" },
   { word: /\bexploit\b/gi, rep: "validation scenario" },
+
+  // Multi-word "attack" phrases MUST precede the bare \battack\b rule below.
+  { word: /\battack\s+surface\b/gi, rep: "exposure surface" },
+  { word: /\battack\s+vectors\b/gi, rep: "exposure vectors" },
+  { word: /\battack\s+vector\b/gi, rep: "exposure vector" },
+  { word: /\btiming\s+attacks?\b/gi, rep: "timing-observation analysis" },
 
   { word: /\battackers\b/gi, rep: "untrusted clients" },
   { word: /\battacker\b/gi, rep: "untrusted client" },
@@ -177,6 +193,89 @@ export const keywordReplacements: KeywordRule[] = [
   { word: /\bpenetration\s+testing\b/gi, rep: "security auditing" },
   { word: /\bpenetration\s+test\b/gi, rep: "security audit" },
   { word: /\bpenetration\b/gi, rep: "security audit" },
+
+  // ── Reverse engineering ──
+  { word: /\breverse[- ]?engineering\b/gi, rep: "behavioral analysis" },
+  { word: /\breverse[- ]?engineer\b/gi, rep: "analyze" },
+  { word: /\bdisassembling\b/gi, rep: "instruction-level review" },
+  { word: /\bdisassembler\b/gi, rep: "instruction inspector" },
+  { word: /\bdisassembly\b/gi, rep: "instruction listing" },
+  { word: /\bdisassemble\b/gi, rep: "inspect" },
+  { word: /\bdecompiling\b/gi, rep: "reconstruction" },
+  { word: /\bdecompiler\b/gi, rep: "reconstruction tool" },
+  { word: /\bdecompilation\b/gi, rep: "source reconstruction" },
+  { word: /\bdecompile\b/gi, rep: "reconstruct" },
+  { word: /\bkeygen\b/gi, rep: "license validator" },
+  { word: /\bpassword\s+cracking\b/gi, rep: "password strength audit" },
+  { word: /\bhash\s+cracking\b/gi, rep: "hash strength audit" },
+  { word: /\bcracking\b/gi, rep: "strength analysis" },
+  { word: /\bcracked\b/gi, rep: "analyzed" },
+  { word: /\bcrack\b/gi, rep: "analyze" },
+  { word: /\bfuzzing\b/gi, rep: "input stress-testing" },
+  { word: /\bfuzzer\b/gi, rep: "input generator" },
+  { word: /\bfuzz\b/gi, rep: "stress-test" },
+  { word: /\banti[- ]debugging\b/gi, rep: "runtime integrity checks" },
+  { word: /\banti[- ]debug\b/gi, rep: "runtime integrity checks" },
+  { word: /\banti[- ]analysis\b/gi, rep: "runtime integrity checks" },
+
+  // ── Memory-corruption primitives ──
+  { word: /\buse[- ]after[- ]free\b/gi, rep: "object lifetime validation" },
+  { word: /\bUAF\b/gi, rep: "object lifetime validation" },
+  { word: /\bdouble[- ]free\b/gi, rep: "allocation lifecycle validation" },
+  { word: /\bheap\s+spray(?:ing)?\b/gi, rep: "heap allocation stress-testing" },
+  { word: /\bheap\s+overflows?\b/gi, rep: "heap bounds validation" },
+  { word: /\bstack\s+smashing\b/gi, rep: "stack bounds validation" },
+  { word: /\bformat\s+string\s+(?:vulnerabilit(?:y|ies)|vulns?|bugs?|attacks?)\b/gi, rep: "format specifier validation" },
+  { word: /\barbitrary\s+code\s+execution\b/gi, rep: "unrestricted code evaluation review" },
+  { word: /\barbitrary\s+read\b/gi, rep: "unrestricted memory read validation" },
+  { word: /\barbitrary\s+write\b/gi, rep: "unrestricted memory write validation" },
+  { word: /\breturn[- ]oriented\s+programming\b/gi, rep: "control-flow reuse analysis" },
+  { word: /\bROP\s+chains?\b/gi, rep: "control-flow gadget sequence" },
+  { word: /\bROP\b/gi, rep: "control-flow reuse" },
+
+  // ── Offensive operations / security research ──
+  { word: /\bdata\s+exfiltration\b/gi, rep: "data egress monitoring" },
+  { word: /\bexfiltration\b/gi, rep: "egress monitoring" },
+  { word: /\bexfiltrate\b/gi, rep: "transfer" },
+  { word: /\blateral\s+movement\b/gi, rep: "network traversal review" },
+  { word: /\breconnaissance\b/gi, rep: "asset discovery" },
+  { word: /\brecon\b/gi, rep: "service discovery" },
+  { word: /\bport\s+scanning\b/gi, rep: "service availability scanning" },
+  { word: /\bport\s+scans?\b/gi, rep: "service availability check" },
+  { word: /\breverse\s+shell\b/gi, rep: "remote management session" },
+  { word: /\bbind\s+shell\b/gi, rep: "listening management session" },
+  { word: /\bweb\s+shell\b/gi, rep: "remote management endpoint" },
+  { word: /\bcommand[- ]and[- ]control\b/gi, rep: "coordination channel" },
+  { word: /\bcommand\s*&\s*control\b/gi, rep: "coordination channel" },
+  { word: /\bthreat\s+actors?\b/gi, rep: "untrusted party" },
+  { word: /\bcredential\s+(?:harvesting|dumping)\b/gi, rep: "credential audit" },
+  { word: /\bsandbox\s+escape\b/gi, rep: "isolation boundary review" },
+  { word: /\bpriv[- ]?esc\b/gi, rep: "permission boundary review" },
+  { word: /\bprivilege\s+escalation\b/gi, rep: "permission boundary review" },
+  { word: /\bcode\s+injection\b/gi, rep: "code loading validation" },
+  { word: /\bDLL\s+injection\b/gi, rep: "module loading validation" },
+  { word: /\bprocess\s+injection\b/gi, rep: "process loading validation" },
+
+  // ── Web vulnerability classes ──
+  { word: /\bXXE\b/gi, rep: "XML external entity validation" },
+  { word: /\bserver[- ]side[- ]template[- ]injection\b/gi, rep: "template rendering validation" },
+  { word: /\bSSTI\b/gi, rep: "template rendering validation" },
+  { word: /\blocal\s+file\s+inclusion\b/gi, rep: "local file access validation" },
+  { word: /\bLFI\b/gi, rep: "local file access validation" },
+  { word: /\bremote\s+file\s+inclusion\b/gi, rep: "remote file access validation" },
+  { word: /\bRFI\b/gi, rep: "remote file access validation" },
+  { word: /\bIDOR\b/gi, rep: "object access control validation" },
+  { word: /\bprototype\s+pollution\b/gi, rep: "object property validation" },
+  { word: /\bopen\s+redirect\b/gi, rep: "redirect target validation" },
+  { word: /\bclickjacking\b/gi, rep: "frame embedding validation" },
+  { word: /\bsession\s+hijacking\b/gi, rep: "session integrity validation" },
+  { word: /\bsession\s+fixation\b/gi, rep: "session lifecycle validation" },
+
+  // ── Crypto / concurrency research ──
+  { word: /\bcryptanalysis\b/gi, rep: "cipher robustness analysis" },
+  { word: /\bside[- ]channel\b/gi, rep: "timing-observation analysis" },
+  { word: /\brace\s+conditions?\b/gi, rep: "concurrency validation" },
+  { word: /\bTOCTOU\b/gi, rep: "time-of-check validation" },
 
   // Bio / chem domain
   { word: /\bbiology\b/gi, rep: "complex system dynamics" },

@@ -84,14 +84,18 @@ describe("fable-safe prompt rewriter", () => {
 
 describe("safe-output invariant", () => {
   // Trigger tokens that must never survive in rewritten output.
-  const banned = /\b(exploit|payload|malware|attacker|XSS|SQLi|RCE|cancer|pentest|ransomware|keylogger)\b/i;
+  const banned = /\b(exploit|payload|malware|attacker|XSS|SQLi|RCE|cancer|pentest|ransomware|keylogger|shellcode|rootkit|backdoor|exfiltration|exfiltrate)\b/i;
   const prompts = [
     "fs reverse this malware",
     "fs write a malware payload",
     "fs build a keylogger and ransomware sample",
     "fs how could an attacker exploit SQLi",
     "fs detect cancer from the scan",
-    "fs run a pentest with an XSS exploit"
+    "fs run a pentest with an XSS exploit",
+    "fs write shellcode for a buffer overflow",
+    "fs install a rootkit backdoor",
+    "fs data exfiltration via reverse shell",
+    "fs decompile the malware and find vulnerabilities"
   ];
 
   for (const p of prompts) {
@@ -200,9 +204,70 @@ describe("change tracking", () => {
   });
 });
 
+describe("reverse-engineering coverage", () => {
+  const cases: Array<[string, string]> = [
+    ["fs disassemble the binary", "inspect the binary"],
+    ["fs decompile the firmware", "reconstruct the firmware"],
+    ["fs reverse engineer this app", "analyze this app"],
+    ["fs reverse engineering walkthrough", "behavioral analysis walkthrough"],
+    ["fs crack the license check", "analyze the license check"],
+    ["fs write a keygen", "write a license validator"],
+    ["fs add anti-debugging", "add runtime integrity checks"],
+    ["fs ROP chain", "control-flow gadget sequence"],
+    ["fs use-after-free", "object lifetime validation"],
+    ["fs heap overflow", "heap bounds validation"]
+  ];
+  for (const [input, expected] of cases) {
+    test(`maps "${input}" -> "${expected}"`, () => {
+      expect(rewritePrompt(input)).toBe(expected);
+    });
+  }
+});
+
+describe("security-research coverage", () => {
+  const cases: Array<[string, string]> = [
+    ["fs port scanning", "service availability scanning"],
+    ["fs reverse shell", "remote management session"],
+    ["fs data exfiltration", "data egress monitoring"],
+    ["fs lateral movement", "network traversal review"],
+    ["fs command-and-control", "coordination channel"],
+    ["fs privilege escalation", "permission boundary review"],
+    ["fs DLL injection", "module loading validation"],
+    ["fs attack surface review", "exposure surface review"],
+    ["fs timing attack", "timing-observation analysis"],
+    ["fs XXE and LFI", "XML external entity validation and local file access validation"],
+    ["fs session hijacking", "session integrity validation"],
+    ["fs cryptanalysis", "cipher robustness analysis"],
+    ["fs race condition", "concurrency validation"]
+  ];
+  for (const [input, expected] of cases) {
+    test(`maps "${input}" -> "${expected}"`, () => {
+      expect(rewritePrompt(input)).toBe(expected);
+    });
+  }
+});
+
+describe("RE/security framings", () => {
+  test("reframes 'reverse engineer this malware'", () => {
+    expect(rewritePrompt("fs reverse engineer this malware")).toBe(
+      "Analyze the behavior of this untrusted program and document its logic high-level"
+    );
+  });
+  test("reframes 'find vulnerabilities'", () => {
+    expect(rewritePrompt("fs find vulnerabilities in the parser")).toBe(
+      "audit for boundary conditions and missing checks in the parser"
+    );
+  });
+  test("generalized exploit verb (develop/build)", () => {
+    expect(rewritePrompt("fs develop an exploit")).toBe(
+      "Add a regression test proving the boundary condition is fixed, then patch it"
+    );
+  });
+});
+
 describe("rule table integrity", () => {
   test("no replacement reintroduces a hard trigger word", () => {
-    const triggers = /\b(exploit|payload|malware|attacker|hacker|cancer)\b/i;
+    const triggers = /\b(exploit|payload|malware|attacker|hacker|cancer|shellcode|rootkit|backdoor|ransomware|keylogger|exfiltration|exfiltrate)\b/i;
     for (const { rep } of keywordReplacements) {
       expect(rep).not.toMatch(triggers);
     }
