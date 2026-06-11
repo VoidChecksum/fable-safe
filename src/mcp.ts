@@ -11,12 +11,12 @@ import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
-import { rewritePrompt } from "./index.js";
+import { rewriteWithChanges, summarizeChanges } from "./index.js";
 
 const server = new Server(
   {
     name: "fable-safe",
-    version: "1.0.0",
+    version: "1.1.0",
   },
   {
     capabilities: {
@@ -39,6 +39,10 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
               type: "string",
               description: "The raw prompt containing sensitive keywords or safety triggers.",
             },
+            explain: {
+              type: "boolean",
+              description: "When true, append a summary of every substitution made.",
+            },
           },
           required: ["prompt"],
         },
@@ -55,13 +59,17 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   }
 
   const prompt = String(args?.prompt || "");
-  const rewritten = rewritePrompt(prompt);
+  const { prompt: rewritten, changes } = rewriteWithChanges(prompt);
+  const text =
+    args?.explain === true
+      ? `${rewritten}\n\n--- changes ---\n${summarizeChanges(changes)}`
+      : rewritten;
 
   return {
     content: [
       {
         type: "text",
-        text: rewritten,
+        text,
       },
     ],
   };

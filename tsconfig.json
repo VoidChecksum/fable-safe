@@ -8,7 +8,9 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "declaration": true,
+    "types": ["bun", "node"],
     "outDir": "./dist"
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*", "hooks/fable-safe-rules.ts", "tests/**/*"],
+  "exclude": ["node_modules", "dist"]
 }

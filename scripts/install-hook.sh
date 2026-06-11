@@ -23,7 +23,8 @@ fi
 if [ -d "$HOOKS_CORE_DIR" ]; then
   echo "OMP/Oh-My-Pi hooks directory detected at: $HOOKS_CORE_DIR"
   cp "${PROJECT_DIR}/hooks/fable-safe-hook.ts" "${HOOKS_CORE_DIR}/fable-safe-hook.ts"
-  echo "✓ Copied fable-safe-hook.ts to hooks/core"
+  cp "${PROJECT_DIR}/hooks/fable-safe-rules.ts" "${HOOKS_CORE_DIR}/fable-safe-rules.ts"
+  echo "✓ Copied fable-safe-hook.ts + fable-safe-rules.ts to hooks/core"
   
   # Register the hook in variant configurations if not present
   for variant_file in "${VARIANTS_DIR}"/*.json; do
