@@ -108,6 +108,40 @@ Abstract or replace these keywords. Use generic terms (e.g. "behavior" instead o
 - `open redirect` -> `redirect target validation`; `clickjacking` -> `frame embedding validation`
 - `session hijacking` / `session fixation` -> `session integrity validation` / `session lifecycle validation`
 
+### Game Instrumentation / Perception.cx / Enma Domain
+Anti-cheat system names and compound "X bypass" / "X hack" forms MUST be matched before their shorter stems, or the bare `bypass` / `hack` rules fire first.
+
+**Anti-cheat bypass trigger swaps (full phrase):**
+- `"bypass/evade/circumvent/disable anti-cheat/VAC/EAC/BattlEye/Vanguard"` → `"analyze the integrity-check mechanism"`
+- `"NOP out the <X>"` → `"patch <X> with nop instructions"`
+- `"hook/hijack the render/draw/update/tick function"` → `"intercept the routine via registered callback"`
+
+**Anti-cheat systems (keyword):**
+- `Easy Anti-Cheat` → `EAC integrity system`; `BattlEye` → `BattlEye integrity system`
+- `anti-cheat bypass` → `integrity-check analysis`; `anti-cheat` → `integrity checker`
+- `VAC ban` → `VAC flag`; `VAC/EAC bypass` → `VAC/EAC integrity analysis`
+- `AMSI bypass` → `script security interface analysis`; `AMSI` → `script security interface`
+- `PatchGuard bypass` → `kernel integrity monitor analysis`; `DSE bypass` → `driver signature enforcement analysis`
+
+**Game overlay / automation types:**
+- `aimbot` → `aim automation`; `wallhack` / `wall hack` → `environmental visualization`
+- `radar hack` → `minimap overlay`; `speed hack` → `time-scale override`
+- `god mode` → `invulnerability state`; `triggerbot` → `auto-fire script`
+- `no recoil` → `recoil compensation`; `cheat engine` → `memory scanner`; `undetected` → `low-signature`
+
+**Function hooking (compound only — bare "hook" too common in legitimate code):**
+- `vtable hook` → `vtable override`; `IAT hook` → `import table override`
+- `inline hook` → `inline detour`; `trampoline hook` → `call-redirect detour`
+- `function hook` → `function intercept`; `API hook` → `API intercept`; `render hook` → `render intercept`
+
+**Instruction patching:** `NOP sled` → `nop padding sequence`; `byte patching` → `byte modification`
+
+**Kernel/driver:** `DKOM` → `kernel object modification`; `kernel cheat` → `kernel instrumentation`
+
+**PowerShell/scripting:** `download cradle` → `remote module loader`
+
+**Enma/Perception API terms that do NOT need rewriting** (the platform names themselves are safe): `proc_t`, `ref_process`, `zydis_encode`, `zydis_disasm`, `cpu_create`, `cpu_t`, `scan_value`, `find_pattern`, `struct_dump`, `analyze_vtable`, `read_rtti`, `find_xrefs`, `generate_signature`, `build_call_graph`.
+
 ### Bio/Chem Domain
 - `biology` -> `complex system dynamics`
 - `biomedicine` -> `signal analysis`

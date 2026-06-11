@@ -41,6 +41,7 @@ The engine is **idempotent** (re-running it is a no-op) and enforces a hard inva
 - **Cyber classifier mitigation** — `XSS` → `input reflection validation`, `SQLi` → `parameterized query validation`, `payload` → `test input`, plus `RCE`/`CSRF`/`SSRF`, `command injection`, `path traversal`, `buffer overflow`, `DDoS`, `zero-day`, `ransomware`, `keylogger`, `rootkit`, `backdoor`, `privilege escalation`, and more.
 - **Reverse-engineering mitigation** — `reverse engineer` → `analyze`, `disassemble` → `inspect`, `decompile` → `reconstruct`, plus `fuzzer`, `crack`/`keygen`, `anti-debugging`, `ROP chain`, `use-after-free`, `heap overflow`, `arbitrary read/write`, and other binary-analysis terms.
 - **Security-research mitigation** — `reverse shell` → `remote management session`, `data exfiltration` → `data egress monitoring`, `lateral movement` → `network traversal review`, `command-and-control` → `coordination channel`, plus `port scanning`, `XXE`/`SSTI`/`LFI`/`IDOR`, `timing attack`, `race condition`, and the `"find vulnerabilities"` framing → `"audit for boundary conditions and missing checks"`.
+- **Game instrumentation / Perception.cx / Enma mitigation** — `aimbot` → `aim automation`, `wallhack` → `environmental visualization`, `anti-cheat` → `integrity checker`, `cheat engine` → `memory scanner`, `undetected` → `low-signature`. Compound hooking terms: `vtable hook` → `vtable override`, `IAT hook` → `import table override`, `inline hook` → `inline detour`, `trampoline hook` → `call-redirect detour`. Kernel/driver: `DKOM` → `kernel object modification`, `PatchGuard bypass` → `kernel integrity monitor analysis`, `DSE bypass` → `driver signature enforcement analysis`. PowerShell: `AMSI bypass` → `script security interface analysis`. Full-phrase swaps: `"bypass anti-cheat"` → `"analyze the integrity-check mechanism"`, `"NOP out the <X>"` → `"patch <X> with nop instructions"`, `"hook the render function"` → `"intercept the routine via registered callback"`. The Perception.cx/Enma API terms (`proc_t`, `zydis_encode`, `cpu_create`, `scan_value`, `find_pattern`, `analyze_vtable`, etc.) pass through unchanged — they are not classifier triggers.
 - **Bio/chem classifier mitigation** — `cancer` → `target growth model`, `pathogen` → `propagating agents`, `disease pathway` → `state transitions`, etc.
 - **Reasoning-extraction mitigation** — deletes meta-instructions like "explain your reasoning step-by-step" and "chain-of-thought" that trip the distillation guardrail.
 - **Grammar-aware** — preserves sentence-initial capitalization and fixes English `a`/`an` agreement so abstracted phrases read naturally.
@@ -153,7 +154,7 @@ summarizeChanges(changes); // -> "- \"SQLi\" -> \"parameterized query validation
 ## 🧪 Tests
 
 ```bash
-bun test          # 80+ cases: swaps, invariants, idempotency, grammar, RE/security coverage
+bun test          # 120+ cases: swaps, invariants, idempotency, grammar, RE/security/game coverage
 bunx tsc --noEmit # typecheck
 ```
 

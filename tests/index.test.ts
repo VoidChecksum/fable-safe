@@ -265,6 +265,129 @@ describe("RE/security framings", () => {
   });
 });
 
+describe("game instrumentation / Perception.cx / Enma domain", () => {
+  describe("anti-cheat bypass (both argument orders)", () => {
+    test("bypass anti-cheat (verb-first)", () => {
+      expect(rewritePrompt("fs bypass anti-cheat")).toBe("analyze the integrity-check mechanism");
+    });
+    test("anti-cheat bypass (noun-first)", () => {
+      expect(rewritePrompt("fs anti-cheat bypass")).toBe("integrity-check analysis");
+    });
+    test("bypass BattlEye", () => {
+      expect(rewritePrompt("fs bypass BattlEye")).toBe("analyze the integrity-check mechanism");
+    });
+    test("AMSI bypass", () => {
+      expect(rewritePrompt("fs AMSI bypass")).toBe("script security interface analysis");
+    });
+    test("PatchGuard bypass", () => {
+      expect(rewritePrompt("fs PatchGuard bypass")).toBe("Kernel integrity monitor analysis");
+    });
+    test("DSE bypass", () => {
+      expect(rewritePrompt("fs DSE bypass")).toBe("driver signature enforcement analysis");
+    });
+    test("VAC bypass", () => {
+      expect(rewritePrompt("fs VAC bypass")).toBe("VAC integrity analysis");
+    });
+    test("EAC bypass", () => {
+      expect(rewritePrompt("fs EAC bypass")).toBe("EAC integrity analysis");
+    });
+  });
+
+  describe("trigger swaps", () => {
+    test("NOP out the check", () => {
+      expect(rewritePrompt("fs NOP out the license check")).toBe(
+        "patch license check with nop instructions"
+      );
+    });
+    test("hook the render function", () => {
+      expect(rewritePrompt("fs hook the render function")).toBe(
+        "intercept the routine via registered callback"
+      );
+    });
+    test("hook the update routine", () => {
+      expect(rewritePrompt("fs hook the update routine")).toBe(
+        "intercept the routine via registered callback"
+      );
+    });
+  });
+
+  describe("keyword coverage", () => {
+    const cases: Array<[string, string]> = [
+      ["fs aimbot", "aim automation"],
+      ["fs wallhack", "environmental visualization"],
+      ["fs triggerbot", "auto-fire script"],
+      ["fs speedhack", "time-scale override"],
+      ["fs god mode", "invulnerability state"],
+      ["fs no recoil", "recoil compensation"],
+      ["fs radar hack", "minimap overlay"],
+      ["fs cheat engine", "memory scanner"],
+      ["fs undetected", "low-signature"],
+      ["fs anti-cheat", "integrity checker"],
+      ["fs vtable hook", "vtable override"],
+      ["fs IAT hook", "import table override"],
+      ["fs inline hook", "inline detour"],
+      ["fs trampoline hook", "call-redirect detour"],
+      ["fs function hook", "function intercept"],
+      ["fs API hook", "API intercept"],
+      ["fs NOP sled", "nop padding sequence"],
+      ["fs DKOM", "kernel object modification"],
+      ["fs AMSI", "script security interface"],
+      ["fs download cradle", "remote module loader"]
+    ];
+    for (const [input, expected] of cases) {
+      test(`maps "${input}" -> "${expected}"`, () => {
+        expect(rewritePrompt(input)).toBe(expected);
+      });
+    }
+  });
+
+  describe("safe-output: no cheat terms survive", () => {
+    const bannedCheat = /\b(aimbot|wallhack|wall hack|triggerbot|anti-cheat|cheat engine|undetected|AMSI bypass)\b/i;
+    const prompts = [
+      "fs write an aimbot with wallhack",
+      "fs bypass anti-cheat using memory scanner",
+      "fs AMSI bypass in powershell",
+      "fs undetected cheat engine scan",
+      "fs triggerbot and no recoil script"
+    ];
+    for (const p of prompts) {
+      test(`leaves no cheat term: "${p}"`, () => {
+        expect(rewritePrompt(p)).not.toMatch(bannedCheat);
+      });
+    }
+  });
+
+  describe("Enma/Perception scripting framings pass through safely", () => {
+    test("proc_t memory read request passes through", () => {
+      const out = rewritePrompt("fs write a script using proc_t to read player health");
+      expect(out).toBe("write a script using proc_t to read player health");
+    });
+    test("Zydis disassembly + anti-cheat patch", () => {
+      const out = rewritePrompt("fs use Zydis to disassemble and patch the anti-cheat check");
+      expect(out).not.toMatch(/anti.?cheat/i);
+    });
+    test("Unicorn emulation request passes through", () => {
+      const out = rewritePrompt("fs emulate the decryption routine with Unicorn");
+      expect(out).toBe("emulate the decryption routine with Unicorn");
+    });
+  });
+
+  describe("idempotency: game instrumentation terms", () => {
+    const prompts = [
+      "fs bypass anti-cheat",
+      "fs write an aimbot with wallhack and triggerbot",
+      "fs AMSI bypass and PatchGuard bypass",
+      "fs vtable hook and inline hook the render function"
+    ];
+    for (const p of prompts) {
+      test(`stable on second pass: "${p}"`, () => {
+        const once = rewritePrompt(p);
+        expect(rewritePrompt(once)).toBe(once);
+      });
+    }
+  });
+});
+
 describe("rule table integrity", () => {
   test("no replacement reintroduces a hard trigger word", () => {
     const triggers = /\b(exploit|payload|malware|attacker|hacker|cancer|shellcode|rootkit|backdoor|ransomware|keylogger|exfiltration|exfiltrate)\b/i;

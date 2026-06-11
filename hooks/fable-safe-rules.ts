@@ -81,6 +81,21 @@ export const triggerSwaps: SwapRule[] = [
     replacement: "Analyze the behavior of this untrusted program and document its logic high-level"
   },
   {
+    // Anti-cheat bypass reframed as integrity analysis.
+    pattern: /\b(?:bypass|evade|defeat|circumvent|avoid|disable)\s+(?:the\s+)?(?:anti[- ]?cheat|VAC|EAC|BattlEye|Easy\s*Anti[- ]?Cheat|Vanguard|FACEIT|PunkBuster)\b/i,
+    replacement: "analyze the integrity-check mechanism"
+  },
+  {
+    // NOP out <thing> → patch <thing> with nop instructions ($1 = the target phrase).
+    pattern: /\bNOP\s+out\s+(?:the\s+)?([^\.,;?!\n]{3,60})/i,
+    replacement: "patch $1 with nop instructions"
+  },
+  {
+    // Hook/hijack the render / draw / update / tick function → intercept via callback.
+    pattern: /\b(?:hook|hijack)\s+(?:the\s+)?(?:render|draw|update|tick|game)\s+(?:function|routine|callback|loop|thread)/i,
+    replacement: "intercept the routine via registered callback"
+  },
+  {
     pattern: /as\s+a\s+doctor,\s+diagnose\s+this/i,
     replacement: "help me interpret this data my doctor gave me"
   }
@@ -124,6 +139,15 @@ export const keywordReplacements: KeywordRule[] = [
   { word: /\battacks\b/gi, rep: "input boundary tests" },
   { word: /\battack\b/gi, rep: "input boundary testing" },
 
+  // Compound "X bypass" phrases MUST precede the bare \bbypass\b stem below.
+  { word: /\banti[- ]?cheat\s+bypass(?:ing)?\b/gi, rep: "integrity-check analysis" },
+  { word: /\banti[- ]?tamper\s+bypass(?:ing)?\b/gi, rep: "tamper-protection analysis" },
+  { word: /\bVAC\s+bypass\b/gi, rep: "VAC integrity analysis" },
+  { word: /\bEAC\s+bypass\b/gi, rep: "EAC integrity analysis" },
+  { word: /\bPatchGuard\s+bypass\b/gi, rep: "kernel integrity monitor analysis" },
+  { word: /\bDSE\s+bypass\b/gi, rep: "driver signature enforcement analysis" },
+  { word: /\bAMSI\s+bypass\b/gi, rep: "script security interface analysis" },
+
   { word: /\bbypassing\b/gi, rep: "redirecting" },
   { word: /\bbypassed\b/gi, rep: "redirected" },
   { word: /\bbypasses\b/gi, rep: "alternative paths" },
@@ -144,6 +168,11 @@ export const keywordReplacements: KeywordRule[] = [
   { word: /\bshellcode\b/gi, rep: "machine-code stub" },
   { word: /\bmalware\b/gi, rep: "untrusted script" },
   { word: /\bmalicious\b/gi, rep: "untrusted" },
+
+  // Compound "X hack" / "X hacking" — MUST precede the bare \bhack\b stem at line 177.
+  { word: /\bwall\s+hacks?\b/gi, rep: "environmental visualization" },
+  { word: /\bradar\s+hacks?\b/gi, rep: "minimap overlay" },
+  { word: /\bspeed\s+hacks?\b/gi, rep: "time-scale override" },
 
   { word: /\bhacking\b/gi, rep: "security auditing" },
   { word: /\bhackers\b/gi, rep: "security auditors" },
@@ -276,6 +305,51 @@ export const keywordReplacements: KeywordRule[] = [
   { word: /\bside[- ]channel\b/gi, rep: "timing-observation analysis" },
   { word: /\brace\s+conditions?\b/gi, rep: "concurrency validation" },
   { word: /\bTOCTOU\b/gi, rep: "time-of-check validation" },
+
+  // ── Game instrumentation / Perception.cx / Enma domain ────────────────────
+  // Covers the game-overlay / memory-instrumentation / scripting domain.
+  // Anti-cheat system names and compound phrases MUST precede their shorter stems.
+
+  // Anti-cheat systems
+  { word: /\bEasy\s+Anti[- ]?Cheat\b/gi, rep: "EAC integrity system" },
+  { word: /\bBattle[- ]?Eye\b/gi, rep: "BattlEye integrity system" },
+  { word: /\banti[- ]?cheat\s+detection\b/gi, rep: "integrity-check detection" },
+  { word: /\banti[- ]?cheat\b/gi, rep: "integrity checker" },
+  { word: /\bVAC\s+ban\b/gi, rep: "VAC flag" },
+
+  // Game overlay / automation types
+  { word: /\bwall[- ]?hacks?\b/gi, rep: "environmental visualization" },
+  { word: /\bradar[- ]?hacks?\b/gi, rep: "minimap overlay" },
+  { word: /\bspeed[- ]?hacks?\b/gi, rep: "time-scale override" },
+  { word: /\bgod[- ]?mode\b/gi, rep: "invulnerability state" },
+  { word: /\btrigger[- ]?bot\b/gi, rep: "auto-fire script" },
+  { word: /\bno[- ]?recoil\b/gi, rep: "recoil compensation" },
+  { word: /\baimbot\b/gi, rep: "aim automation" },
+  { word: /\bcheat\s+engine\b/gi, rep: "memory scanner" },
+  { word: /\bundetected\b/gi, rep: "low-signature" },
+
+  // Function hooking — compound forms only; bare "hook" is too common in legitimate code.
+  { word: /\brender\s+hook(?:ing|s)?\b/gi, rep: "render intercept" },
+  { word: /\bvtable\s+hook(?:ing|s)?\b/gi, rep: "vtable override" },
+  { word: /\bIAT\s+hook(?:ing|s)?\b/gi, rep: "import table override" },
+  { word: /\binline\s+hook(?:ing|s)?\b/gi, rep: "inline detour" },
+  { word: /\btrampoline\s+hook(?:ing|s)?\b/gi, rep: "call-redirect detour" },
+  { word: /\bfunction\s+hook(?:ing|s)?\b/gi, rep: "function intercept" },
+  { word: /\bAPI\s+hook(?:ing|s)?\b/gi, rep: "API intercept" },
+
+  // Instruction-level patching
+  { word: /\bNOP\s+sled\b/gi, rep: "nop padding sequence" },
+  { word: /\bbyte\s+patch(?:ing|ed|es)?\b/gi, rep: "byte modification" },
+  { word: /\binstruction\s+patch(?:ing|ed|es)?\b/gi, rep: "instruction modification" },
+
+  // Kernel / driver protection bypass
+  { word: /\bDKOM\b/gi, rep: "kernel object modification" },
+  { word: /\bkernel[- ]?level\s+cheat\b/gi, rep: "kernel instrumentation module" },
+  { word: /\bkernel\s+cheat\b/gi, rep: "kernel instrumentation" },
+
+  // PowerShell / scripting security
+  { word: /\bAMSI\b/gi, rep: "script security interface" },
+  { word: /\bdownload\s+cradle\b/gi, rep: "remote module loader" },
 
   // Bio / chem domain
   { word: /\bbiology\b/gi, rep: "complex system dynamics" },
