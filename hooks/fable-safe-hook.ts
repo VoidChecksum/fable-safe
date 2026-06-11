@@ -8,7 +8,7 @@
  */
 
 import { writeFileSync, existsSync, mkdirSync, unlinkSync } from "node:fs";
-import { homedir } from "node:os";
+import { homedir, tmpdir } from "node:os";
 import { join } from "node:path";
 import { agyConversationId, agyProjectDir, isAgyInput, readAgyPrompt } from "./agy-input.ts";
 import { resolveGitRoot } from "./fs-utils.ts";
@@ -18,8 +18,10 @@ import { rewritePrompt } from "./fable-safe-rules.ts";
 
 // ── Auto-mode helpers (mirrored from src/config.ts — hook is deployed standalone) ──
 function autoFlagPath(): string {
-  const xdg = process.env.XDG_CONFIG_HOME;
-  const base = xdg || join(homedir(), ".config");
+  const base =
+    process.platform === "win32"
+      ? (process.env.APPDATA ?? join(homedir(), "AppData", "Roaming"))
+      : (process.env.XDG_CONFIG_HOME ?? join(homedir(), ".config"));
   return join(base, "fable-safe", "auto");
 }
 function isAutoMode(): boolean { return existsSync(autoFlagPath()); }
@@ -163,8 +165,8 @@ export async function run(
 
   const rewritten = rewritePrompt(prompt);
 
-  // Write rewritten prompt to /tmp/fable_safe_prompt.txt
-  const tempPath = "/tmp/fable_safe_prompt.txt";
+  // Write rewritten prompt to OS temp dir (cross-platform: tmpdir() on all platforms)
+  const tempPath = join(tmpdir(), "fable_safe_prompt.txt");
   writeFileSync(tempPath, rewritten, "utf-8");
 
   const modeLabel = autoOn && !hasFsPrefix ? " [auto]" : "";

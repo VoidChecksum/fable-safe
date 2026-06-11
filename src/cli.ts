@@ -4,7 +4,7 @@
  *
  * Subcommands:
  *   (default)          Rewrite prompt from argv or stdin
- *   setup              Interactive setup wizard
+ *   setup              Interactive setup wizard (Claude Code, Desktop, OpenCode, OMP)
  *   status             Show installation state + auto-mode
  *   auto [on|off]      Enable / disable / toggle auto-rewrite
  *   add-rule <w> <r>   Add a custom keyword rule
@@ -18,6 +18,9 @@
  *   -c, --copy         Copy result to system clipboard
  *   -h, --help         Show usage
  */
+import { existsSync, readFileSync } from "node:fs";
+import { homedir } from "node:os";
+import { join } from "node:path";
 
 import { spawnSync } from "node:child_process";
 import type { RewriteMode } from "./index.js";
@@ -48,8 +51,8 @@ Usage:
   fable-safe <subcommand> [args]
 
 Subcommands:
-  setup              Interactive wizard — detects OMP, Claude Desktop, MCP, and CLI.
-  status             Show auto-mode state, config paths, and installed components.
+  setup              Interactive wizard — installs into Claude Code, Desktop, OpenCode, and OMP.
+  status             Show auto-mode state, detected targets, and custom rule count.
   auto [on|off]      Toggle auto-rewrite for ALL prompts. No arg = toggle.
   add-rule <w> <r>   Add custom keyword rule: "w" → "r" (stored in rules.json).
   remove-rule <w>    Remove a custom keyword rule by word.
@@ -96,12 +99,72 @@ function cmdStatus(): void {
   const kwCount = (rules.keywords ?? []).length;
   const swapCount = (rules.swaps ?? []).length;
 
+  // Target detection
+  const has = (p: string) => existsSync(p);
+  const home = homedir();
+  const xdgCfg = process.env.XDG_CONFIG_HOME ?? join(home, ".config");
+
+  const claudeCodeSettings = join(home, ".claude", "settings.json");
+  const claudeCodeHook = join(home, ".claude", "hooks", "fable-safe-hook.ts");
+  // claude mcp add -s user writes to ~/.claude.json; fallback writes there too
+  const claudeCodeMcp = (() => {
+    const check = (p: string, key: string) => {
+      try { return "fable-safe" in ((JSON.parse(readFileSync(p, "utf-8")) as Record<string, unknown>)[key] as object ?? {}); }
+      catch { return false; }
+    };
+    return check(join(home, ".claude.json"), "mcpServers") || check(claudeCodeSettings, "mcpServers");
+  })();
+  const claudeCodeHookInstalled = has(claudeCodeHook);
+
+  const desktopCfgPath =
+    process.platform === "darwin"
+      ? join(home, "Library", "Application Support", "Claude", "claude_desktop_config.json")
+      : process.platform === "win32"
+        ? join(process.env.APPDATA ?? join(home, "AppData", "Roaming"), "Claude", "claude_desktop_config.json")
+        : join(xdgCfg, "Claude", "claude_desktop_config.json");
+  const desktopMcp = (() => {
+    try { return "fable-safe" in ((JSON.parse(readFileSync(desktopCfgPath, "utf-8")) as Record<string, unknown>).mcpServers as object ?? {}); }
+    catch { return false; }
+  })();
+
+  const openCodeCfg =
+    process.platform === "win32"
+      ? join(process.env.APPDATA ?? join(home, "AppData", "Roaming"), "opencode", "opencode.json")
+      : join(xdgCfg, "opencode", "opencode.json");
+  const openCodeMcp = (() => {
+    try { return "fable-safe" in ((JSON.parse(readFileSync(openCodeCfg, "utf-8")) as Record<string, unknown>).mcp as object ?? {}); }
+    catch { return false; }
+  })();
+
+  const ompHook = has(join(home, ".agents", "hooks", "core", "fable-safe-hook.ts"));
+  const ompSkill = has(join(home, ".agents", "skills", "oma-fable-safe-prompt", "SKILL.md"));
+  const fsCmd = has(join(home, ".claude", "commands", "fs.md"));
+
+  const tick = (v: boolean) => v ? "✓" : "○";
+
   console.log("\nfable-safe status");
-  console.log("─────────────────");
+  console.log("──────────────────────────────────────────");
   console.log(`auto-rewrite:  ${auto ? "🟢 ON" : "⚫ OFF"}`);
   console.log(`auto flag:     ${autoFlagPath()}`);
   console.log(`rules file:    ${rulesFilePath()}`);
   console.log(`custom rules:  ${kwCount} keyword(s), ${swapCount} phrase swap(s)`);
+  console.log();
+  console.log("  Claude Code CLI");
+  console.log(`    hook (settings.json):  ${tick(claudeCodeHookInstalled)}`);
+  console.log(`    MCP server:            ${tick(claudeCodeMcp)}`);
+  console.log(`    /fs slash command:     ${tick(fsCmd)}`);
+  console.log();
+  console.log("  Claude Desktop");
+  console.log(`    MCP server:            ${tick(desktopMcp)}`);
+  console.log();
+  console.log("  OpenCode");
+  console.log(`    MCP server:            ${tick(openCodeMcp)}`);
+  console.log();
+  console.log("  OMP / oh-my-agent");
+  console.log(`    hook (hooks/core):     ${tick(ompHook)}`);
+  console.log(`    skill:                 ${tick(ompSkill)}`);
+  console.log();
+  console.log("  Run `fable-safe setup` to install missing components.");
   console.log();
 }
 

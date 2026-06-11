@@ -13,8 +13,10 @@ import { join } from "node:path";
 // ── Paths ─────────────────────────────────────────────────────────────────
 
 function configDir(): string {
-  const xdg = process.env.XDG_CONFIG_HOME;
-  return join(xdg || join(homedir(), ".config"), "fable-safe");
+  // Windows: use %APPDATA% (Roaming); Unix: XDG_CONFIG_HOME or ~/.config
+  if (process.platform === "win32")
+    return join(process.env.APPDATA ?? join(homedir(), "AppData", "Roaming"), "fable-safe");
+  return join(process.env.XDG_CONFIG_HOME ?? join(homedir(), ".config"), "fable-safe");
 }
 
 export function configPath(file: string): string {
