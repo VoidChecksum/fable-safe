@@ -1,0 +1,34 @@
+{
+  "name": "fable-safe",
+  "version": "1.0.0",
+  "description": "Surgical prompt re-writer to bypass Claude Fable 5 server-side safety classifiers",
+  "main": "src/index.ts",
+  "bin": {
+    "fable-safe": "./src/cli.ts"
+  },
+  "type": "module",
+  "scripts": {
+    "test": "bun test",
+    "cli": "bun run src/cli.ts",
+    "mcp": "bun run src/mcp.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.24",
+    "typescript": "^5.3.3"
+  },
+  "keywords": [
+    "claude",
+    "fable-5",
+    "safety",
+    "guardrails",
+    "mcp",
+    "mcp-server",
+    "claude-desktop",
+    "claude-code"
+  ],
+  "author": "VoidChecksum",
+  "license": "MIT"
+}
