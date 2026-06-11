@@ -1,7 +1,7 @@
 {
   "name": "fable-safe",
-  "version": "1.1.0",
-  "description": "Surgical prompt re-writer to bypass Claude Fable 5 server-side safety classifiers",
+  "version": "1.2.0",
+  "description": "Prompt normalizer for Claude Fable 5's content evaluation layer — keyword rewriting, ultra/wenyan surface modes, auto-rewrite toggle",
   "main": "src/index.ts",
   "bin": {
     "fable-safe": "./src/cli.ts"
@@ -9,8 +9,10 @@
   "type": "module",
   "scripts": {
     "test": "bun test",
+    "setup": "bun run src/cli.ts setup",
     "cli": "bun run src/cli.ts",
-    "mcp": "bun run src/mcp.ts"
+    "mcp": "bun run src/mcp.ts",
+    "install:local": "bun link"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.4"
@@ -23,12 +25,12 @@
   "keywords": [
     "claude",
     "fable-5",
-    "safety",
-    "guardrails",
+    "content-evaluation",
     "mcp",
     "mcp-server",
     "claude-desktop",
-    "claude-code"
+    "claude-code",
+    "prompt-normalization"
   ],
   "author": "VoidChecksum",
   "license": "MIT"

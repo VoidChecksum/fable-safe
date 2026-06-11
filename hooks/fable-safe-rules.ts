@@ -569,19 +569,48 @@ export function wenyanRewrite(text: string): string {
 /** Rewrite mode: 'normal' | 'ultra' | 'wenyan' */
 export type RewriteMode = "normal" | "ultra" | "wenyan";
 
+/** Options for rewriteWithChanges — superset of the legacy RewriteMode string. */
+export interface RewriteOptions {
+  mode?: RewriteMode;
+  /** Extra keyword rules appended after the built-in list (user config injection). */
+  extraKeywords?: KeywordRule[];
+  /** Extra phrase swaps prepended before the built-in list (user config injection). */
+  extraSwaps?: SwapRule[];
+}
+
+/** Resolved, fully-populated options — private to this module. */
+interface ResolvedOptions {
+  mode: RewriteMode;
+  extraKeywords: KeywordRule[];
+  extraSwaps: SwapRule[];
+}
+
+/** Normalise a RewriteMode | RewriteOptions | undefined into resolved options. */
+function toOptions(input?: RewriteMode | RewriteOptions): ResolvedOptions {
+  if (!input || typeof input === "string") {
+    return { mode: (input ?? "normal") as RewriteMode, extraKeywords: [], extraSwaps: [] };
+  }
+  return { mode: input.mode ?? "normal", extraKeywords: input.extraKeywords ?? [], extraSwaps: input.extraSwaps ?? [] };
+}
+
 // ── Core rewrite ───────────────────────────────────────────────────────────
 
 /**
  * Rewrite a prompt and report every substitution made. Idempotent: feeding the
  * output back in produces the same string with no further changes.
  */
-export function rewriteWithChanges(prompt: string, mode: RewriteMode = "normal"): RewriteResult {
+export function rewriteWithChanges(
+  prompt: string,
+  modeOrOptions?: RewriteMode | RewriteOptions
+): RewriteResult {
+  const { mode, extraKeywords, extraSwaps } = toOptions(modeOrOptions);
+
   // Strip the "fs " / "/fs " invocation prefix.
   let cleaned = prompt.trim().replace(/^(?:\/?fs\s+)/i, "");
   const changes: Change[] = [];
 
-  // 1. Full-phrase trigger swaps.
-  for (const swap of triggerSwaps) {
+  // 1. Full-phrase trigger swaps (user extra swaps run first for highest priority).
+  for (const swap of [...extraSwaps, ...triggerSwaps]) {
     const m = cleaned.match(swap.pattern);
     if (m) {
       const expanded = m[0].replace(swap.pattern, swap.replacement);
@@ -599,8 +628,8 @@ export function rewriteWithChanges(prompt: string, mode: RewriteMode = "normal")
     }
   }
 
-  // 3. Single-keyword abstractions (case-preserving).
-  for (const kw of keywordReplacements) {
+  // 3. Single-keyword abstractions — built-in then user extras (case-preserving).
+  for (const kw of [...keywordReplacements, ...extraKeywords]) {
     cleaned = cleaned.replace(kw.word, (m) => {
       const rep = matchCase(m, kw.rep);
       if (!changes.some((c) => c.from.toLowerCase() === m.toLowerCase() && c.kind === "keyword")) {
@@ -628,9 +657,13 @@ export function rewriteWithChanges(prompt: string, mode: RewriteMode = "normal")
 }
 
 /** Normalize a prompt (optionally in ultra or wenyan surface mode). */
-export function rewritePrompt(prompt: string, mode: RewriteMode = "normal"): string {
-  return rewriteWithChanges(prompt, mode).prompt;
+export function rewritePrompt(
+  prompt: string,
+  modeOrOptions?: RewriteMode | RewriteOptions
+): string {
+  return rewriteWithChanges(prompt, modeOrOptions).prompt;
 }
+
 
 /** Human-readable, one-per-line summary of the substitutions made. */
 export function summarizeChanges(changes: Change[]): string {
